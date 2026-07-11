@@ -16,7 +16,6 @@ This repository contains the data processing and machine learning workflow devel
 - `Project-Code/ML_Model/rf_model.py` — model training and inference code for random forest
 - `Project-Code/ML_Model/rf_tune.py` — model tuning and threshold optimization
 - `Project-Code/ML_Model/RESULTS/` — recorded experiment outputs and evaluation summaries
-- `Documents/` — supporting documentation, reports, and presentations
 
 ## Highlights
 
