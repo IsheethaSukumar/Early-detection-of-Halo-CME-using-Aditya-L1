@@ -1,0 +1,70 @@
+================================================================
+  SOLAR HALO CME  --  Random Forest
+================================================================
+
+[1/6] Loading cleaned data ...
+      Rows        : 43,800
+      CME  (1)    : 5,861  (13.4%)
+      No-CME (0)  : 37,939  (86.6%)
+      Columns     : ['Unnamed: 0', 'cme_label', 'is_halo', 'cme_speed_kmps', 'cme_angular_w', 'bx_gse', 'by_gse', 'bz_gse', 'by_gsm', 'bz_gsm', 'proton_density', 'plasma_speed_kmps', 'flow_pressure_npa', 'plasma_temperature_k', 'B_magnitude', 'alfven_speed', 'dynamic_pressure', 'bz_southward', 'mach_alfven', 'plasma_speed_kmps_mean3h', 'plasma_speed_kmps_std3h', 'plasma_speed_kmps_mean6h', 'plasma_speed_kmps_std6h', 'plasma_speed_kmps_mean12h', 'plasma_speed_kmps_std12h', 'plasma_speed_kmps_delta1h', 'B_magnitude_mean3h', 'B_magnitude_std3h', 'B_magnitude_mean6h', 'B_magnitude_std6h', 'B_magnitude_mean12h', 'B_magnitude_std12h', 'B_magnitude_delta1h', 'proton_density_mean3h', 'proton_density_std3h', 'proton_density_mean6h', 'proton_density_std6h', 'proton_density_mean12h', 'proton_density_std12h', 'proton_density_delta1h', 'bz_gse_mean3h', 'bz_gse_std3h', 'bz_gse_mean6h', 'bz_gse_std6h', 'bz_gse_mean12h', 'bz_gse_std12h', 'bz_gse_delta1h', 'flow_pressure_npa_mean3h', 'flow_pressure_npa_std3h', 'flow_pressure_npa_mean6h', 'flow_pressure_npa_std6h', 'flow_pressure_npa_mean12h', 'flow_pressure_npa_std12h', 'flow_pressure_npa_delta1h', 'plasma_temperature_k_mean3h', 'plasma_temperature_k_std3h', 'plasma_temperature_k_mean6h', 'plasma_temperature_k_std6h', 'plasma_temperature_k_mean12h', 'plasma_temperature_k_std12h', 'plasma_temperature_k_delta1h', 'swis_total_counts']
+
+[2/6] Feature engineering ...
+      Total features : 57
+
+[3/6] Stratified 80/20 split + StandardScaler ...
+      Train : 35,040  |  CME: 4,689  (13.4%)
+      Test  : 8,760   |  CME: 1,172   (13.4%)
+      Scaler saved -> D:\SOLAR-HALOS-FORECASTING&NOWCASTING\Project-Code\ML_Model\artifacts\rf_scaler.pkl
+
+[4/6] SMOTE oversampling ...
+      Before -> CME: 4,689  |  No-CME: 30,351
+      After  -> CME: 30,351  |  No-CME: 30,351
+
+[5/6] Training Random Forest (n_estimators=300) ...
+      Trained in 10.3s
+
+[6/6] Evaluation + precision-recall threshold tuning ...
+
+  ROC-AUC : 0.8647
+
+                                   Accuracy     Recall  Precision         F1
+  --------------------------------------------------------------------
+  Default (0.50)                     89.04%     0.4275     0.6334     0.5107
+  Best F1 (0.454)                    87.76%     0.5435     0.5426     0.5431
+  Recall>=0.80 (0.014)               13.38%     1.0000     0.1338     0.2360
+
+  [OK] Chosen threshold : 0.4544
+
+  === Full Classification Report (threshold=0.4544) ===
+              precision    recall  f1-score   support
+
+      No CME       0.93      0.93      0.93      7588
+    Halo CME       0.54      0.54      0.54      1172
+
+    accuracy                           0.88      8760
+   macro avg       0.74      0.74      0.74      8760
+weighted avg       0.88      0.88      0.88      8760
+
+  Confusion Matrix:
+    TN (correct No-CME) : 7,051
+    FP (false alarm)     : 537
+    FN (missed CME)      : 535
+    TP (caught CME)      : 637
+
+  Threshold saved -> D:\SOLAR-HALOS-FORECASTING&NOWCASTING\Project-Code\ML_Model\artifacts\rf_threshold.txt
+  Saving feature importance ...
+  CSV saved -> D:\SOLAR-HALOS-FORECASTING&NOWCASTING\Project-Code\ML_Model\artifacts\rf_feature_importance.csv
+  Plot saved -> D:\SOLAR-HALOS-FORECASTING&NOWCASTING\Project-Code\ML_Model\artifacts\rf_feature_importance.png
+
+[Save] Persisting model ...
+  Model saved -> D:\SOLAR-HALOS-FORECASTING&NOWCASTING\Project-Code\ML_Model\artifacts\random_forest.pkl  (137,218 KB)
+
+================================================================
+  DONE -- ML_Model/artifacts/ now contains:
+    random_forest.pkl
+    rf_scaler.pkl
+    rf_threshold.txt              (threshold=0.4544)
+    rf_feature_importance.csv
+    rf_feature_importance.png
+    rf_evaluation.png
+================================================================

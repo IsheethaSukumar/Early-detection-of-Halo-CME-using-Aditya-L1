@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.venv/
+venv/
+env/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Large local data and model artifacts
+Project-Code/Dataset/raw/
+Project-Code/Dataset/processed/
+Project-Code/ML_Model/artifacts/
+*.npy
+*.cdf
+*.csv
+*.pkl
+*.h5
+
+# OS files
+.DS_Store
+Thumbs.db

@@ -1,0 +1,63 @@
+================================================================
+  SOLAR HALO CME  --  Random Forest - optuna tuning
+================================================================
+
+[1/5] Loading and Preparing Data ...
+      Rows        : 43,800
+      CME  (1)    : 5,861  (13.4%)
+      No-CME (0)  : 37,939  (86.6%)
+      Columns     : ['Unnamed: 0', 'cme_label', 'is_halo', 'cme_speed_kmps', 'cme_angular_w', 'bx_gse', 'by_gse', 'bz_gse', 'by_gsm', 'bz_gsm', 'proton_density', 'plasma_speed_kmps', 'flow_pressure_npa', 'plasma_temperature_k', 'B_magnitude', 'alfven_speed', 'dynamic_pressure', 'bz_southward', 'mach_alfven', 'plasma_speed_kmps_mean3h', 'plasma_speed_kmps_std3h', 'plasma_speed_kmps_mean6h', 'plasma_speed_kmps_std6h', 'plasma_speed_kmps_mean12h', 'plasma_speed_kmps_std12h', 'plasma_speed_kmps_delta1h', 'B_magnitude_mean3h', 'B_magnitude_std3h', 'B_magnitude_mean6h', 'B_magnitude_std6h', 'B_magnitude_mean12h', 'B_magnitude_std12h', 'B_magnitude_delta1h', 'proton_density_mean3h', 'proton_density_std3h', 'proton_density_mean6h', 'proton_density_std6h', 'proton_density_mean12h', 'proton_density_std12h', 'proton_density_delta1h', 'bz_gse_mean3h', 'bz_gse_std3h', 'bz_gse_mean6h', 'bz_gse_std6h', 'bz_gse_mean12h', 'bz_gse_std12h', 'bz_gse_delta1h', 'flow_pressure_npa_mean3h', 'flow_pressure_npa_std3h', 'flow_pressure_npa_mean6h', 'flow_pressure_npa_std6h', 'flow_pressure_npa_mean12h', 'flow_pressure_npa_std12h', 'flow_pressure_npa_delta1h', 'plasma_temperature_k_mean3h', 'plasma_temperature_k_std3h', 'plasma_temperature_k_mean6h', 'plasma_temperature_k_std6h', 'plasma_temperature_k_mean12h', 'plasma_temperature_k_std12h', 'plasma_temperature_k_delta1h', 'swis_total_counts']
+
+[2/5] Running optuna.....
+
+Best trial: 24. Best value: 0.963672: 100%|█████████████████████████████████████████| 30/30 [1:10:19<00:00, 140.65s/it]
+
+      Finished 30 trials in 4220.0s
+      Best ROC-AUC (CV) : 0.9637
+      Best params       :
+        n_estimators              = 550
+        max_depth                 = 27
+        min_samples_split         = 7
+        min_samples_leaf          = 3
+        max_features              = 0.5
+
+[3/5] Retraining with best params ...
+      Trained in 69.4s
+
+[4/5] Evaluating on test set ...
+
+  ROC-AUC  : 0.8324
+  PR-AUC   : 0.4856
+  Chosen threshold (Best F1) : 0.3710
+
+  === Full Classification Report ===
+              precision    recall  f1-score   support
+
+      No CME       0.94      0.84      0.89      7588
+    Halo CME       0.38      0.63      0.47      1172
+
+    accuracy                           0.81      8760
+   macro avg       0.66      0.74      0.68      8760
+weighted avg       0.86      0.81      0.83      8760
+
+  Confusion Matrix:
+    TN (correct No-CME) : 6,366
+    FP (false alarm)     : 1,222
+    FN (missed CME)      : 432
+    TP (caught CME)      : 740
+
+  Threshold saved -> D:\SOLAR-HALOS-FORECASTING&NOWCASTING\Project-Code\ML_Model\artifacts\rf_tuned_threshold.txt       
+  Plot saved -> D:\SOLAR-HALOS-FORECASTING&NOWCASTING\Project-Code\ML_Model\artifacts\rf_tuned_evaluation.png
+
+[5/5] Saving tuned model ...
+  Model saved -> D:\SOLAR-HALOS-FORECASTING&NOWCASTING\Project-Code\ML_Model\artifacts\random_forest_tuned.pkl  (231,026 KB)
+  Params saved -> D:\SOLAR-HALOS-FORECASTING&NOWCASTING\Project-Code\ML_Model\artifacts\rf_best_params.csv
+
+================================================================
+  DONE -- ML_Model/artifacts/ now contains:
+    random_forest_tuned.pkl
+    rf_tuned_threshold.txt
+    rf_tuned_evaluation.png
+    rf_best_params.csv
+  Final ROC-AUC : 0.8324
+================================================================
