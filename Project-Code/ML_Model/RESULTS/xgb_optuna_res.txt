@@ -1,0 +1,66 @@
+XGBoost parameter Tuning (Optuna)
+================================================================
+
+[1/5] Loading & preparing data ...
+      Train (after SMOTE) : 60,702  |  features: 57
+      Test                : 8,760
+      scale_pos_weight    : 6.47
+
+[2/5] Running Optuna (50 trials, 3-fold CV) ...
+Best trial: 12. Best value: 0.97149
+
+      Finished 50 trials in 2009.3s
+      Best ROC-AUC (CV) : 0.9715
+      Best params       :
+        n_estimators              = 600
+        max_depth                 = 12
+        learning_rate             = 0.0327951154754447
+        subsample                 = 0.6158259992721308
+        colsample_bytree          = 0.9501048236575184
+        min_child_weight          = 1
+        gamma                     = 0.06642992156522953
+        reg_alpha                 = 0.012284418140151132
+        reg_lambda                = 4.7460996264248445
+
+[3/5] Retraining with best params ...
+      Trained in 69.7s
+
+[4/5] Evaluating on test set ...
+
+  ROC-AUC  : 0.8239
+  PR-AUC   : 0.4263
+  Chosen threshold (Best F1) : 0.3766
+
+  === Full Classification Report ===
+              precision    recall  f1-score   support
+
+      No CME       0.96      0.74      0.84      7588
+    Halo CME       0.32      0.78      0.45      1172
+
+    accuracy                           0.75      8760
+   macro avg       0.64      0.76      0.64      8760
+weighted avg       0.87      0.75      0.78      8760
+
+  Confusion Matrix:
+    TN (correct No-CME) : 5,628
+    FP (false alarm)     : 1,960
+    FN (missed CME)      : 254
+    TP (caught CME)      : 918
+
+  Threshold saved -> D:\SOLAR-HALOS-FORECASTING&NOWCASTING\Project-Code\ML_Model\artifacts\xgb_tuned_threshold.txt
+  Plot saved -> D:\SOLAR-HALOS-FORECASTING&NOWCASTING\Project-Code\ML_Model\artifacts\xgb_tuned_evaluation.png
+
+[5/5] Saving tuned model ...
+  Pickle saved -> D:\SOLAR-HALOS-FORECASTING&NOWCASTING\Project-Code\ML_Model\artifacts\xgboost_tuned.pkl  (14,868 KB)
+  JSON  saved -> D:\SOLAR-HALOS-FORECASTING&NOWCASTING\Project-Code\ML_Model\artifacts\xgboost_tuned.json  (27,101 KB)
+  Params saved -> D:\SOLAR-HALOS-FORECASTING&NOWCASTING\Project-Code\ML_Model\artifacts\xgb_best_params.csv
+
+================================================================
+  DONE -- ML_Model/artifacts/ now contains:
+    xgboost_tuned.pkl
+    xgboost_tuned.json
+    xgb_tuned_threshold.txt
+    xgb_tuned_evaluation.png
+    xgb_best_params.csv
+  Final ROC-AUC : 0.8239
+================================================================

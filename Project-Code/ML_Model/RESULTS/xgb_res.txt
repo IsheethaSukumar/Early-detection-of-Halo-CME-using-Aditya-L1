@@ -1,0 +1,80 @@
+PS D:\SOLAR-HALOS-FORECASTING&NOWCASTING\Project-Code\ML_Model> py xgb_model.py
+Installing xgboost ...
+
+[notice] A new release of pip is available: 26.0.1 -> 26.1.2
+[notice] To update, run: C:\Python314\python.exe -m pip install --upgrade pip
+
+================================================================
+  SOLAR HALO CME  --  XGBoost
+================================================================
+
+[1/6] Loading cleaned data ...
+      Rows        : 43,800
+      CME  (1)    : 5,861  (13.4%)
+      No-CME (0)  : 37,939  (86.6%)
+      Columns     : ['Unnamed: 0', 'cme_label', 'is_halo', 'cme_speed_kmps', 'cme_angular_w', 'bx_gse', 'by_gse', 'bz_gse', 'by_gsm', 'bz_gsm', 'proton_density', 'plasma_speed_kmps', 'flow_pressure_npa', 'plasma_temperature_k', 'B_magnitude', 'alfven_speed', 'dynamic_pressure', 'bz_southward', 'mach_alfven', 'plasma_speed_kmps_mean3h', 'plasma_speed_kmps_std3h', 'plasma_speed_kmps_mean6h', 'plasma_speed_kmps_std6h', 'plasma_speed_kmps_mean12h', 'plasma_speed_kmps_std12h', 'plasma_speed_kmps_delta1h', 'B_magnitude_mean3h', 'B_magnitude_std3h', 'B_magnitude_mean6h', 'B_magnitude_std6h', 'B_magnitude_mean12h', 'B_magnitude_std12h', 'B_magnitude_delta1h', 'proton_density_mean3h', 'proton_density_std3h', 'proton_density_mean6h', 'proton_density_std6h', 'proton_density_mean12h', 'proton_density_std12h', 'proton_density_delta1h', 'bz_gse_mean3h', 'bz_gse_std3h', 'bz_gse_mean6h', 'bz_gse_std6h', 'bz_gse_mean12h', 'bz_gse_std12h', 'bz_gse_delta1h', 'flow_pressure_npa_mean3h', 'flow_pressure_npa_std3h', 'flow_pressure_npa_mean6h', 'flow_pressure_npa_std6h', 'flow_pressure_npa_mean12h', 'flow_pressure_npa_std12h', 'flow_pressure_npa_delta1h', 'plasma_temperature_k_mean3h', 'plasma_temperature_k_std3h', 'plasma_temperature_k_mean6h', 'plasma_temperature_k_std6h', 'plasma_temperature_k_mean12h', 'plasma_temperature_k_std12h', 'plasma_temperature_k_delta1h', 'swis_total_counts']
+
+[2/6] Feature engineering ...
+      Total features     : 57
+      scale_pos_weight   : 6.47  (neg/pos ratio)
+
+[3/6] Stratified 80/20 split + StandardScaler ...
+      Train : 35,040  |  CME: 4,689  (13.4%)
+      Test  : 8,760   |  CME: 1,172   (13.4%)
+      Scaler saved -> D:\SOLAR-HALOS-FORECASTING&NOWCASTING\Project-Code\ML_Model\artifacts\xgb_scaler.pkl
+
+[4/6] SMOTE oversampling ...
+      Before -> CME: 4,689  |  No-CME: 30,351
+      After  -> CME: 30,351  |  No-CME: 30,351
+
+[5/6] Training XGBoost ...
+      Trained in 10.8s
+
+[6/6] Evaluation + precision-recall threshold tuning ...
+
+  ROC-AUC : 0.7143
+
+                                   Accuracy     Recall  Precision         F1
+  --------------------------------------------------------------------
+  Default (0.50)                     51.68%     0.8601     0.1985     0.3226
+  Best F1 (0.626)                    63.14%     0.7116     0.2239     0.3406
+  Recall>=0.80 (0.003)               13.38%     1.0000     0.1338     0.2360
+
+  [OK] Chosen threshold : 0.6257
+
+  === Full Classification Report (threshold=0.6257) ===
+              precision    recall  f1-score   support
+
+      No CME       0.93      0.62      0.74      7588
+    Halo CME       0.22      0.71      0.34      1172
+
+    accuracy                           0.63      8760
+   macro avg       0.58      0.67      0.54      8760
+weighted avg       0.84      0.63      0.69      8760
+
+  Confusion Matrix:
+    TN (correct No-CME) : 4,697
+    FP (false alarm)     : 2,891
+    FN (missed CME)      : 338
+    TP (caught CME)      : 834
+
+  Threshold saved -> D:\SOLAR-HALOS-FORECASTING&NOWCASTING\Project-Code\ML_Model\artifacts\xgb_threshold.txt
+  Saving feature importance ...
+  CSV saved -> D:\SOLAR-HALOS-FORECASTING&NOWCASTING\Project-Code\ML_Model\artifacts\xgb_feature_importance.csv
+  Plot saved -> D:\SOLAR-HALOS-FORECASTING&NOWCASTING\Project-Code\ML_Model\artifacts\xgb_feature_importance.png
+  Plot saved -> D:\SOLAR-HALOS-FORECASTING&NOWCASTING\Project-Code\ML_Model\artifacts\xgb_evaluation.png
+
+[Save] Persisting model ...
+  Pickle saved -> D:\SOLAR-HALOS-FORECASTING&NOWCASTING\Project-Code\ML_Model\artifacts\xgboost_model.pkl  (1,008 KB)
+  JSON  saved -> D:\SOLAR-HALOS-FORECASTING&NOWCASTING\Project-Code\ML_Model\artifacts\xgboost_model.json  (1,554 KB)
+
+================================================================
+  DONE -- ML_Model/artifacts/ now contains:
+    xgboost_model.pkl
+    xgboost_model.json
+    xgb_scaler.pkl
+    xgb_threshold.txt              (threshold=0.6257)
+    xgb_feature_importance.csv
+    xgb_feature_importance.png
+    xgb_evaluation.png
+================================================================
