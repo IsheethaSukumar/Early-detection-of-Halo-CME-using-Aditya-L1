@@ -1,0 +1,79 @@
+
+================================================================
+  SOLAR HALO CME  --  Random Forest + Isolation Forest Score
+================================================================
+
+[1/6] Loading IF-augmented dataset ...
+      Source      : iforest_augmented.csv
+      Rows        : 43,800
+      CME  (1)    : 5,861  (13.4%)
+      No-CME (0)  : 37,939  (86.6%)
+      IF features : ['anomaly_score', 'is_anomaly']
+        anomaly_score range : [0.3262, 0.8340]
+        is_anomaly count    : 1,715  (3.9%)
+
+[2/6] Feature engineering  (anomaly_score + is_anomaly included) ...
+      Total features : 59  (baseline 57 + 2 IF features)
+
+[3/6] Stratified 80/20 split + StandardScaler ...
+      Train : 35,040  |  CME: 4,689
+      Test  : 8,760   |  CME: 1,172
+      Scaler saved -> D:\SOLAR-HALOS-FORECASTING&NOWCASTING\Project-Code\ML_Model\artifacts\rf_if_scaler.pkl
+
+[4/6] SMOTE oversampling ...
+      After  -> CME: 30,351  |  No-CME: 30,351
+
+[5/6] Training Random Forest (n_estimators=300) ...
+      Trained in 11.0s
+
+[6/6] Evaluation + precision-recall threshold tuning ...
+
+  ROC-AUC : 0.8617
+  PR-AUC  : 0.5820
+
+                                   Accuracy     Recall  Precision         F1
+  --------------------------------------------------------------------
+  Default (0.50)                     88.96%     0.4454     0.6226     0.5191
+  Best F1 (0.462)                    87.75%     0.5341     0.5429     0.5385
+  Recall>=0.80 (0.019)               13.38%     1.0000     0.1338     0.2360
+
+  [OK] Chosen threshold : 0.4618
+
+  === Full Classification Report (threshold=0.4618) ===
+              precision    recall  f1-score   support
+
+      No CME       0.93      0.93      0.93      7588
+    Halo CME       0.54      0.53      0.54      1172
+
+    accuracy                           0.88      8760
+   macro avg       0.74      0.73      0.73      8760
+weighted avg       0.88      0.88      0.88      8760
+
+  Confusion Matrix:
+    TN: 7,061  FP: 527  FN: 546  TP: 626
+
+  IF feature ranks:
+    anomaly_score        rank #  4  importance=0.02675
+    is_anomaly           rank # 59  importance=0.00015
+
+[Save] Persisting RF+IF model ...
+  Model saved -> D:\SOLAR-HALOS-FORECASTING&NOWCASTING\Project-Code\ML_Model\artifacts\rf_if_model.pkl  (137,878 KB)
+
+  ================================================
+  MODEL COMPARISON  (RF baseline vs RF + IF)
+  ================================================
+  Metric               Baseline   + IF Score    Delta
+  ------------------------------------------------
+  ROC-AUC                0.8647       0.8617 -0.0030
+  ================================================
+
+================================================================
+  DONE -- artifacts/ now contains:
+    rf_if_model.pkl                (RF trained on IF-augmented data)
+    rf_if_scaler.pkl
+    rf_if_threshold.txt            (threshold=0.4618)
+    rf_if_feature_importance.csv/png
+    rf_if_evaluation.png
+
+  RESULTS/rf_if_res.txt           (this log)
+================================================================

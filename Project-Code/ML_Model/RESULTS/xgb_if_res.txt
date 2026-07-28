@@ -1,0 +1,81 @@
+
+================================================================
+  SOLAR HALO CME  --  XGBoost + Isolation Forest Score
+================================================================
+
+[1/6] Loading IF-augmented dataset ...
+      Source      : iforest_augmented.csv
+      Rows        : 43,800
+      CME  (1)    : 5,861  (13.4%)
+      No-CME (0)  : 37,939  (86.6%)
+      IF features : ['anomaly_score', 'is_anomaly']
+        anomaly_score range : [0.3262, 0.8340]
+
+[2/6] Feature engineering  (anomaly_score + is_anomaly included) ...
+      Total features     : 59  (baseline 57 + 2 IF features)
+      scale_pos_weight   : 6.47
+
+[3/6] Stratified 80/20 split + StandardScaler ...
+      Train : 35,040  |  CME: 4,689
+      Test  : 8,760   |  CME: 1,172
+      Scaler saved -> D:\SOLAR-HALOS-FORECASTING&NOWCASTING\Project-Code\ML_Model\artifacts\xgb_if_scaler.pkl
+
+[4/6] Skipping SMOTE for XGB+IF (scale_pos_weight handles imbalance)
+      Train set -> CME: 4,689  |  No-CME: 30,351  (original ratio preserved)
+
+[5/6] Training XGBoost ...
+      Trained in 1.9s
+
+[6/6] Evaluation + precision-recall threshold tuning ...
+
+  ROC-AUC : 0.8637
+  PR-AUC  : 0.6051
+
+                                   Accuracy     Recall  Precision         F1
+  --------------------------------------------------------------------
+  Default (0.50)                     86.16%     0.6109     0.4861     0.5416
+  Best F1 (0.575)                    89.05%     0.5102     0.6083     0.5550
+  Recall>=0.80 (0.003)               13.38%     1.0000     0.1338     0.2360
+
+  [OK] Chosen threshold : 0.5749
+
+  === Full Classification Report (threshold=0.5749) ===
+              precision    recall  f1-score   support
+
+      No CME       0.93      0.95      0.94      7588
+    Halo CME       0.61      0.51      0.55      1172
+
+    accuracy                           0.89      8760
+   macro avg       0.77      0.73      0.75      8760
+weighted avg       0.88      0.89      0.89      8760
+
+  Confusion Matrix:
+    TN: 7,203  FP: 385  FN: 574  TP: 598
+
+  IF feature ranks:
+    anomaly_score        rank # 28  gain=0.00
+    is_anomaly           rank # 59  gain=0.00
+  Plot saved -> D:\SOLAR-HALOS-FORECASTING&NOWCASTING\Project-Code\ML_Model\artifacts\xgb_if_evaluation.png
+
+[Save] Persisting XGB+IF model ...
+  Pickle -> D:\SOLAR-HALOS-FORECASTING&NOWCASTING\Project-Code\ML_Model\artifacts\xgb_if_model.pkl  (1,084 KB)
+  JSON   -> D:\SOLAR-HALOS-FORECASTING&NOWCASTING\Project-Code\ML_Model\artifacts\xgb_if_model.json  (1,699 KB)
+
+  ================================================
+  MODEL COMPARISON  (XGB baseline vs XGB + IF)
+  ================================================
+  Metric               Baseline   + IF Score    Delta
+  ------------------------------------------------
+  ROC-AUC                0.8647       0.8637 -0.0010
+  ================================================
+
+================================================================
+  DONE -- artifacts/ now contains:
+    xgb_if_model.pkl / xgb_if_model.json
+    xgb_if_scaler.pkl
+    xgb_if_threshold.txt          (threshold=0.5749)
+    xgb_if_feature_importance.csv/png
+    xgb_if_evaluation.png
+
+  RESULTS/xgb_if_res.txt         (this log)
+================================================================
