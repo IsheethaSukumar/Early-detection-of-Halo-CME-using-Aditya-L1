@@ -1,0 +1,77 @@
+
+================================================================
+  SOLAR HALO CME  --  Isolation Forest (Anomaly Detection)
+================================================================
+
+  Role   : Unsupervised pre-filter for unusual solar-wind conditions
+  Input  : full_merged_dataset.csv  (labels withheld during fit)
+  Output : iforest_augmented.csv  <- use as input for RF / XGBoost / LSTM
+
+[1/6] Loading cleaned dataset ...
+      Rows        : 43,800
+      CME  (1)    : 5,861  (13.4%)
+      No-CME (0)  : 37,939  (86.6%)
+      Columns     : ['Unnamed: 0', 'cme_label', 'is_halo', 'cme_speed_kmps', 'cme_angular_w', 'bx_gse', 'by_gse', 'bz_gse', 'by_gsm', 'bz_gsm', 'proton_density', 'plasma_speed_kmps', 'flow_pressure_npa', 'plasma_temperature_k', 'B_magnitude', 'alfven_speed', 'dynamic_pressure', 'bz_southward', 'mach_alfven', 'plasma_speed_kmps_mean3h', 'plasma_speed_kmps_std3h', 'plasma_speed_kmps_mean6h', 'plasma_speed_kmps_std6h', 'plasma_speed_kmps_mean12h', 'plasma_speed_kmps_std12h', 'plasma_speed_kmps_delta1h', 'B_magnitude_mean3h', 'B_magnitude_std3h', 'B_magnitude_mean6h', 'B_magnitude_std6h', 'B_magnitude_mean12h', 'B_magnitude_std12h', 'B_magnitude_delta1h', 'proton_density_mean3h', 'proton_density_std3h', 'proton_density_mean6h', 'proton_density_std6h', 'proton_density_mean12h', 'proton_density_std12h', 'proton_density_delta1h', 'bz_gse_mean3h', 'bz_gse_std3h', 'bz_gse_mean6h', 'bz_gse_std6h', 'bz_gse_mean12h', 'bz_gse_std12h', 'bz_gse_delta1h', 'flow_pressure_npa_mean3h', 'flow_pressure_npa_std3h', 'flow_pressure_npa_mean6h', 'flow_pressure_npa_std6h', 'flow_pressure_npa_mean12h', 'flow_pressure_npa_std12h', 'flow_pressure_npa_delta1h', 'plasma_temperature_k_mean3h', 'plasma_temperature_k_std3h', 'plasma_temperature_k_mean6h', 'plasma_temperature_k_std6h', 'plasma_temperature_k_mean12h', 'plasma_temperature_k_std12h', 'plasma_temperature_k_delta1h', 'swis_total_counts']
+
+[2/6] Building feature matrix (unsupervised -- labels withheld) ...
+      Feature columns : 57
+      Missing values  : 0 (after imputation)
+
+[3/6] Standardising features ...
+      Scaler saved -> D:\SOLAR-HALOS-FORECASTING&NOWCASTING\Project-Code\ML_Model\artifacts\iforest_scaler.pkl
+
+[4/6] Fitting Isolation Forest  (n_estimators=200, contamination=auto) ...
+      Fitted in 0.5s
+      Anomalies flagged : 1,715  (3.9%)
+
+[5/6] Diagnostic: anomaly <-> CME overlap ...
+      Anomaly->CME  ROC-AUC : 0.5267  (>0.5 means anomalies lean toward CME events)
+      Anomaly->CME  PR-AUC  : 0.1492
+
+      CME rows flagged as anomaly    : 5.3%
+      No-CME rows flagged as anomaly : 3.7%
+
+      Best anomaly_score threshold   : 0.3290
+        F1        : 0.2361
+        Recall    : 0.9995
+        Precision : 0.1339
+
+      Threshold saved -> D:\SOLAR-HALOS-FORECASTING&NOWCASTING\Project-Code\ML_Model\artifacts\iforest_threshold.txt
+
+[6/6] Augmenting dataset with anomaly features ...
+      Augmented CSV saved -> D:\SOLAR-HALOS-FORECASTING&NOWCASTING\Project-Code\ML_Model\artifacts\iforest_augmented.csv  (36,909 KB)
+      New columns : anomaly_score (float), is_anomaly (0/1)
+
+  Generating diagnostic plots ...
+    Saved -> D:\SOLAR-HALOS-FORECASTING&NOWCASTING\Project-Code\ML_Model\iforest_score_dist.png
+    Saved -> D:\SOLAR-HALOS-FORECASTING&NOWCASTING\Project-Code\ML_Model\iforest_roc.png
+    Saved -> D:\SOLAR-HALOS-FORECASTING&NOWCASTING\Project-Code\ML_Model\iforest_top_features.png
+
+[Save] Persisting Isolation Forest model ...
+  Model saved -> D:\SOLAR-HALOS-FORECASTING&NOWCASTING\Project-Code\ML_Model\artifacts\iforest_model.pkl  (1,105 KB)
+
+================================================================
+  DONE -- ML_Model/artifacts/ now contains:
+    iforest_model.pkl         (fitted IsolationForest)
+    iforest_scaler.pkl        (StandardScaler)
+    iforest_augmented.csv     (original data + anomaly_score, is_anomaly)
+    iforest_threshold.txt     (anomaly_score cut-off = 0.3290)
+
+  ML_Model/RESULTS/
+    iforest_res.txt           (this log)
+
+  Diagnostic plots saved to ML_Model/:
+    iforest_score_dist.png
+    iforest_roc.png
+    iforest_top_features.png
+
+  -- Integration guide ------------------------------------------
+  In rf_model.py / xgb_model.py / lstm_model.py, replace:
+    df = pd.read_csv(PROC_DIR / 'full_merged_dataset.csv')
+  with:
+    df = pd.read_csv(ARTIFACT_DIR / 'iforest_augmented.csv')
+  The 'anomaly_score' and 'is_anomaly' columns will automatically
+  be picked up as extra features (they are NOT in DROP_COLS).
+
+  Total run time : 5.5s
+================================================================
