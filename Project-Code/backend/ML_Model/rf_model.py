@@ -1,5 +1,5 @@
 """
-Random Forest Model — Solar Halo CME Forecasting & Nowcasting
+Random Forest Model 
 =============================================================
 Usage:
     python ML_Model/rf_model.py

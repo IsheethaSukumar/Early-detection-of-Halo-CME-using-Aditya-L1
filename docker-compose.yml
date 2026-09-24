@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: timescale/timescaledb:latest-pg15
+    container_name: cme_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: aditya
+      POSTGRES_PASSWORD: halo_cme_pass
+      POSTGRES_DB: cme_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aditya -d cme_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cme_api
+    restart: always
+    command: uvicorn Project-Code.backend.ML_Model.app:app --host 0.0.0.0 --port 8000
+    ports:
+      - "8000:8000"
+    environment:
+      - APP_ENV=production
+      - DATABASE_URL=postgresql://aditya:halo_cme_pass@postgres:5432/cme_db
+      - WARNING_THRESHOLD=0.37
+      - CRITICAL_THRESHOLD=0.85
+      - MODEL_VERSION=v1.0
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}
+      - SLACK_WEBHOOK_URL=${SLACK_WEBHOOK_URL}
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cme_worker
+    restart: always
+    command: python Project-Code/backend/ML_Model/simulate_telemetry.py --records 1000 --interval 300
+    environment:
+      - API_URL=http://api:8000/predict
+      - DATABASE_URL=postgresql://aditya:halo_cme_pass@postgres:5432/cme_db
+    depends_on:
+      - api
+
+volumes:
+  pgdata:

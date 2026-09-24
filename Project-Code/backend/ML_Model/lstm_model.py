@@ -35,9 +35,7 @@ except ImportError:
         sys.executable, "-m", "pip", "install", "-q", "torch", "torchvision",
         "--index-url", "https://download.pytorch.org/whl/cu124",
     ])
-    import torch
-    import torch.nn as nn
-    from torch.utils.data import DataLoader, TensorDataset, WeightedRandomSampler
+    
 
 # ── Config ─────────────────────────────────────────────────────────────────────
 WINDOW_SIZE = 24          # hours of look-back per sequence

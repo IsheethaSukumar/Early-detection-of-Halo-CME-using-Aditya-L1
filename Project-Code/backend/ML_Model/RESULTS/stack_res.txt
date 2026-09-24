@@ -1,0 +1,146 @@
+
+================================================================
+  SOLAR HALO CME  --  Stacking Ensemble (RF + XGB + BiLSTM → LogReg)
+================================================================
+  Device     : cpu
+  OOF folds  : 5
+  Window     : 24h look-back (BiLSTM sequences)
+  Meta-model : Logistic Regression (L2, C=1.0)
+
+[1/7] Loading IF-augmented dataset ...
+      Source     : iforest_augmented.csv
+      Rows       : 43,800
+      CME  (1)   : 5,861  (13.4%)
+      No-CME (0) : 37,939  (86.6%)
+
+[2/7] Feature engineering ...
+      Features : 59  (57 solar-wind + anomaly_score + is_anomaly)
+        [OK] 'anomaly_score' at index 57
+        [OK] 'is_anomaly' at index 58
+
+[3/7] Stratified 80/20 row-level split (random_state=42) ...
+      Train rows : 35,040  |  CME: 4,689
+      Test  rows : 8,760   |  CME: 1,172
+
+  Fitting global scaler for BiLSTM sequence building ...
+      X_scaled_full shape : (43800, 59)
+
+  Loading artifact scalers and models ...
+      BiLSTM+IF loaded: n_features=59  params=105,655
+      RF+IF    loaded: RandomForestClassifier
+      XGB+IF   loaded: XGBClassifier
+
+[4/7] Generating OOF predictions (5-fold, training rows) ...
+
+      ── Fold 1/5 ──────────────────────────
+        RF+IF   OOF AUC: 0.8439
+        XGB+IF  OOF AUC: 0.8591
+        LSTM+IF OOF AUC: 0.8787  (7004/7008 valid rows)
+        Fold time: 8.1s
+
+      ── Fold 2/5 ──────────────────────────
+        RF+IF   OOF AUC: 0.8520
+        XGB+IF  OOF AUC: 0.8614
+        LSTM+IF OOF AUC: 0.8842  (7005/7008 valid rows)
+        Fold time: 7.7s
+
+      ── Fold 3/5 ──────────────────────────
+        RF+IF   OOF AUC: 0.8443
+        XGB+IF  OOF AUC: 0.8402
+        LSTM+IF OOF AUC: 0.8794  (7004/7008 valid rows)
+        Fold time: 7.8s
+
+      ── Fold 4/5 ──────────────────────────
+        RF+IF   OOF AUC: 0.8552
+        XGB+IF  OOF AUC: 0.8748
+        LSTM+IF OOF AUC: 0.8848  (7005/7008 valid rows)
+        Fold time: 7.9s
+
+      ── Fold 5/5 ──────────────────────────
+        RF+IF   OOF AUC: 0.8616
+        XGB+IF  OOF AUC: 0.8591
+        LSTM+IF OOF AUC: 0.8821  (7003/7008 valid rows)
+        Fold time: 8.1s
+
+      OOF RF   NaN count : 0
+      OOF XGB  NaN count : 0
+      OOF LSTM NaN count : 19
+
+  OOF probabilities saved -> .\ML_Model\artifacts\stack_oof_probs.csv
+
+[5/7] Training Logistic Regression meta-model ...
+      OOF rows available : 35,021 / 35,040
+      CME in OOF         : 4,689  (13.4%)
+        OOF AUC  RF+IF       : 0.8513
+        OOF AUC  XGB+IF      : 0.8587
+        OOF AUC  LSTM+IF     : 0.8819
+
+      Meta-model coefficients (positive = contributes to CME):
+        p_rf    : +0.8458
+        p_xgb   : +0.6333
+        p_lstm  : +1.3088
+        intercept: -3.0573
+
+      OOF ensemble ROC-AUC : 0.9241  (CV estimate — not test AUC)
+  Meta-model saved  -> .\ML_Model\artifacts\stack_meta_model.pkl
+  Meta-scaler saved -> .\ML_Model\artifacts\stack_meta_scaler.pkl
+
+[6/7] Generating test set predictions from artifact models ...
+      RF+IF   test preds : 8,760
+      XGB+IF  test preds : 8,760
+      LSTM+IF test preds : 8,756  (NaN: 4)
+
+[7/7] Evaluation on test set (8,756 rows) ...
+
+  Stacking Ensemble ROC-AUC : 0.9160
+  Stacking Ensemble PR-AUC  : 0.7439
+
+                                     Accuracy     Recall  Precision         F1
+  ----------------------------------------------------------------------
+  Default (0.50)                       81.58%     0.8311     0.4079     0.5470
+  Best F1 (0.865)                      92.14%     0.6160     0.7521     0.6773
+  Recall>=0.80 (0.001)                 13.39%     1.0000     0.1339     0.2361
+
+  === Full Classification Report (threshold=0.8653) ===
+              precision    recall  f1-score   support
+
+      No CME       0.94      0.97      0.96      7584
+    Halo CME       0.75      0.62      0.68      1172
+
+    accuracy                           0.92      8756
+   macro avg       0.85      0.79      0.82      8756
+weighted avg       0.92      0.92      0.92      8756
+
+  Confusion Matrix:
+    TN (correct No-CME) : 7,346
+    FP (false alarm)     : 238
+    FN (missed CME)      : 450
+    TP (caught CME)      : 722
+
+  ================ Model Comparison (test set) ================
+  Model                           ROC-AUC     PR-AUC
+  --------------------------------------------------
+  RF + IF                          0.8616     0.5820
+  XGBoost + IF                     0.8636     0.6051
+  BiLSTM + IF                      0.8683     0.6292
+  --- Stacking Ensemble ---   
+  RF + XGB + LSTM → LogReg         0.9160     0.7439
+  ==================================================
+
+  Threshold saved   -> .\ML_Model\artifacts\stack_threshold.txt
+
+  3-panel plot saved -> .\ML_Model\artifacts\stack_evaluation.png
+
+================================================================
+  DONE -- ML_Model/artifacts/ now contains:
+    stack_meta_model.pkl
+    stack_meta_scaler.pkl
+    stack_threshold.txt         (thr=0.8653)
+    stack_oof_probs.csv
+    stack_evaluation.png         (ROC | PR | Calibration)
+
+  RESULTS/stack_res.txt         (this log)
+
+  Final Stack ROC-AUC : 0.9160   PR-AUC : 0.7439
+  Total run time      : 45.9s
+================================================================
